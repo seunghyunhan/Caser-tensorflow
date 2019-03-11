@@ -13,4 +13,4 @@ This repo is implementation of Caser. Most of these codes are based on [caser-py
 
 ## Usage
 1. Install required packages
-2. run python train_caser.py
+2. run <code>python train_caser.py</code>
