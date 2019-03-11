@@ -6,8 +6,8 @@ A TensorFlow Implementation of Convolutional Sequence Embedding Recommendation M
 This repo is implementation of Caser. Most of these codes are based on [caser-pytorch](https://github.com/graytowne/caser_pytorch) from the author and I transferred it to tensorflow version.
 
 ## Requirements
-
-- Python 2
+I just run it on an environment as below.
+- Python 2.7x
 - Tensorflow v1.11
 - Numpy
 
