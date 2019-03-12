@@ -209,8 +209,8 @@ class Recommender(object):
         
         return out
 
-
-if __name__ == '__main__':
+    
+def main():
     parser = argparse.ArgumentParser()
     # data arguments
     parser.add_argument('--train_root', type=str, default='datasets/ml1m/test/train.txt')
@@ -247,5 +247,8 @@ if __name__ == '__main__':
     print(config)
     # fit model
     model = Recommender(args=config)
-
     model.fit(train, test, verbose=True)
+
+    
+if __name__ == '__main__':
+    main()
