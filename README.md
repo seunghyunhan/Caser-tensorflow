@@ -3,10 +3,10 @@ A TensorFlow Implementation of Convolutional Sequence Embedding Recommendation M
 
 *Personalized Top-N Sequential Recommendation via Convolutional Sequence Embedding, Jiaxi Tang and Ke Wang , WSDM '18*
 
-This repo is implementation of Caser. Most of these codes are based on [caser-pytorch](https://github.com/graytowne/caser_pytorch) from the author and I transferred it to tensorflow version.
+This repo is implementation of Caser. Codes are based on [graytowne/caser-pytorch](https://github.com/graytowne/caser_pytorch) which is organized by an author of paper and I transferred them to tensorflow.
 
 ## Requirements
-I just run it on an environment as below.
+I developed codes under the environment as below.
 - Python 2.7x
 - Tensorflow v1.11
 - Numpy
