@@ -28,6 +28,7 @@ class Caser(object):
 
         # init args
         self.L = self.args.L
+        self.T = self.args.T        
         self.dims = self.args.d
         self.n_h = self.args.nh
         self.n_v = self.args.nv
@@ -39,13 +40,12 @@ class Caser(object):
         self.lengths = [i + 1 for i in range(self.L)]
 
 
-    def build_model(self, L, T):
+    def build_model(self):
         """
-        
         """
-        self.SEQ = tf.placeholder(tf.int32, [None, L])
-        self.USER = tf.placeholder(tf.int32, [None, 1])
-        self.ITEM = tf.placeholder(tf.int32, [None, 2*T])
+        self.sequences = tf.placeholder(tf.int32, [None, self.L])
+        self.users = tf.placeholder(tf.int32, [None, 1])
+        self.items = tf.placeholder(tf.int32, [None, 2*self.T])
         self.is_training = tf.placeholder(tf.bool)
                                              
         # user and item embeddings
@@ -57,9 +57,9 @@ class Caser(object):
         self.W2 = tf.Variable(initializer([self.num_items, self.dims+self.dims]))
         self.b2 = tf.Variable(initializer([self.num_items, 1]))
         
-        item_embs = tf.nn.embedding_lookup(self.item_embeddings, self.SEQ)
-        item_embs = tf.reshape(item_embs, [-1, L, self.dims, 1])
-        user_emb = tf.nn.embedding_lookup(self.user_embeddings, self.USER)
+        item_embs = tf.nn.embedding_lookup(self.item_embeddings, self.sequences)
+        item_embs = tf.reshape(item_embs, [-1, self.L, self.dims, 1])
+        user_emb = tf.nn.embedding_lookup(self.user_embeddings, self.users)
         user_emb = tf.reshape(user_emb, [-1, self.dims])
         
         # vertical convolution layers
@@ -78,8 +78,8 @@ class Caser(object):
                                             self.n_h, 
                                             [h, self.dims], 
                                             activation=tf.nn.relu)
-                conv_out = tf.reshape(conv_out, [-1, L-h+1, self.n_h])
-                pool_out = tf.layers.max_pooling1d(conv_out, [L-h+1], 1)
+                conv_out = tf.reshape(conv_out, [-1, self.L-h+1, self.n_h])
+                pool_out = tf.layers.max_pooling1d(conv_out, [self.L-h+1], 1)
                 pool_out = tf.squeeze(pool_out, 1)
                 out_hs.append(pool_out)
             out_h = tf.concat(out_hs, 1)
@@ -93,8 +93,8 @@ class Caser(object):
         x = tf.concat([z, user_emb], 1)
         x = tf.reshape(x, [-1, 1, 2*self.dims])
         
-        w2 = tf.nn.embedding_lookup(self.W2, self.ITEM)
-        b2 = tf.nn.embedding_lookup(self.b2, self.ITEM)
+        w2 = tf.nn.embedding_lookup(self.W2, self.items)
+        b2 = tf.nn.embedding_lookup(self.b2, self.items)
         b2 = tf.squeeze(b2, 2)
         
         # training with negative samples
@@ -112,9 +112,9 @@ class Caser(object):
         self.train_op = tf.train.AdamOptimizer(self.learning_rate).minimize(self.loss)
     
         # For test
-        self.ALL_ITEM = tf.placeholder(tf.int32, [None, self.num_items])        
-        test_w2 = tf.nn.embedding_lookup(self.W2, self.ALL_ITEM)
-        test_b2 = tf.nn.embedding_lookup(self.b2, self.ALL_ITEM)        
+        self.all_items = tf.placeholder(tf.int32, [None, self.num_items])        
+        test_w2 = tf.nn.embedding_lookup(self.W2, self.all_items)
+        test_b2 = tf.nn.embedding_lookup(self.b2, self.all_items)        
         test_b2 = tf.reshape(test_b2, [-1, self.num_items])
         self.test_pred = tf.reduce_sum(tf.multiply(x, test_w2), axis=2) + test_b2
     
@@ -131,9 +131,9 @@ class Caser(object):
         item_var: torch.LongTensor with size [batch_size]
             a batch of items
         """
-        loss, _  = sess.run([self.loss, self.train_op], feed_dict={self.SEQ: seq_var,
-                                                                   self.USER: user_var,
-                                                                   self.ITEM: item_var,
+        loss, _  = sess.run([self.loss, self.train_op], feed_dict={self.sequences: seq_var,
+                                                                   self.users: user_var,
+                                                                   self.items: item_var,
                                                                    self.is_training: True})
         return loss
     
@@ -153,9 +153,9 @@ class Caser(object):
         user_var = np.reshape([user_var], [-1, 1])
         item_var = np.reshape(item_var, [-1, self.num_items]) 
            
-        pred = sess.run(self.test_pred, feed_dict={self.SEQ: seq_var,
-                                                   self.USER: user_var,
-                                                   self.ALL_ITEM: item_var,
+        pred = sess.run(self.test_pred, feed_dict={self.sequences: seq_var,
+                                                   self.users: user_var,
+                                                   self.all_items: item_var,
                                                    self.is_training: False})
         pred = np.reshape(pred, [-1])
         return pred

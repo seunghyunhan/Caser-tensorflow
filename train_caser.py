@@ -42,7 +42,7 @@ class Recommender(object):
     def _initialized(self):
         return self._net is not None
 
-    def _initialize(self, interactions, L, T):
+    def _initialize(self, interactions):
         self._num_items = interactions.num_items
         self._num_users = interactions.num_users
 
@@ -52,7 +52,7 @@ class Recommender(object):
                           self._num_items,
                           self.args)
 
-        self._net.build_model(L, T)
+        self._net.build_model()
         
         self.sess = tf.Session()
         init = tf.global_variables_initializer()
@@ -87,7 +87,7 @@ class Recommender(object):
         print(output_str)
 
         if not self._initialized:
-            self._initialize(train, L, T)
+            self._initialize(train)
 
             
         start_epoch = 0

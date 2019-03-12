@@ -3,8 +3,6 @@ import tensorflow as tf
 
 import random
 
-activation_getter = {'iden': lambda x: x, 'relu': tf.nn.relu, 'tanh': tf.nn.tanh, 'sigm': tf.nn.sigmoid}
-
 def minibatch(*array, **kwargs):
 
     batch_size = kwargs.get('batch_size', 128)
